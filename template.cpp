@@ -25,12 +25,6 @@
 using namespace std;
  
 
-const int N = 3e5;
-vector<int> G[N], GR[N], comp, res(N);
-vector<int> order;
-int n, m, vis[N];
-int clan = 0;
-
 struct KosarajuAlgorithm {
 	// Kosaraju's Algorithm for finding Strongly Connected Components
     vector<vector<int> > G, GR;
@@ -120,19 +114,19 @@ struct MathUtil {
 	}
 };
 
+void t_main() {
+
+}
 
 signed main()
 {
-    cin >> n >> m;
-	vector<pair<int, int> > v;
-	for(int i=0; i<m; i++) {
-		int a, b;
-		cin >> a >> b;
-		v.push_back({a, b});
+	ios_base::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	int t = 1;
+	cin >> t;
+	while (t--) {
+		t_main();	
 	}
-	KosarajuAlgorithm kosa;
-	kosa.build(v, n);
-	cout << kosa.clan << endl;
-	for(int i=1; i<=n; i++) cout << kosa.res[i] << " ";
-    return 0;
+	return 0;
 }
