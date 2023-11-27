@@ -85,7 +85,42 @@ struct KosarajuAlgorithm {
 };
 
 
- 
+struct MathUtil {
+	vector<int> get_phi(int n) {
+		vector<int> phi(n+1);
+		for (int i = 1; i <= n; i++) {
+			for (int j = i; j <= n; j += i) {
+				if (j > i) phi[j] -= phi[i];
+			}
+		}
+		return phi;
+	}
+
+	vector<vector<int> > get_divs(int n) {
+		vector<vector<int> > divs(n+1);
+		for (int i = 1; i <= n; i++) {
+			for (int j = i; j <= n; j += i) {
+				divs[j].push_back(i);
+			}
+		}
+		return divs;
+	}
+
+	vector<bool> get_prime_mask(int n) {
+		vector<bool> prime(n+1, true);
+		prime[0] = prime[1] = false;
+		for (int i = 2; i <= n; i++) {
+			if (prime[i]) {
+				for (long long j = 1LL * i * i; j <= n; j += i) {
+					prime[j] = false;
+				}
+			}
+		}
+		return prime;
+	}
+};
+
+
 signed main()
 {
     cin >> n >> m;
