@@ -34,6 +34,7 @@ struct KosarajuAlgorithm {
     int clan;
 
 	void build(vector<pair<int, int> > &v, int sz) {
+		/// v is the edge list, sz is the number of nodes
 		n = sz;
 		m = v.size();
 		G.assign(n+1, vector<int>());
