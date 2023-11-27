@@ -134,5 +134,5 @@ signed main()
 	kosa.build(v, n);
 	cout << kosa.clan << endl;
 	for(int i=1; i<=n; i++) cout << kosa.res[i] << " ";
-    return 0;
+    return 1;
 }
