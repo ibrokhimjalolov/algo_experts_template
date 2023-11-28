@@ -174,6 +174,7 @@ struct TwoSAT {
             if (!vis[v]) scc(v, id);
     }
 
+	// main function
     bool satisfiable() {
         fill(vis.begin(), vis.end(), false);
 
