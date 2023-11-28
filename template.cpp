@@ -80,7 +80,7 @@ struct KosarajuAlgorithm {
 };
 
 
-struct MathUtil {
+namespace MathUtil {
 	vector<int> get_phi(int n) {
 		vector<int> phi(n+1);
 		for (int i = 1; i <= n; i++) {
@@ -197,6 +197,32 @@ struct TwoSAT {
     }
 };
 
+
+namespace GraphUtils {
+	vector<int> topological_sort(vector<pair<int, int> > &v, int sz) {
+		// v is the edge list, sz is the number of nodes
+		vector<vector<int> > g(sz+1);
+		vector<int> indeg(sz+1, 0);
+		vector<int> order;
+		for(auto i: v) {
+			indeg[i.second] ++;
+			g[i.first].push_back(i.second);
+		}
+		queue<int> q;
+		for(int i=1; i<=sz; i++) {
+			if (indeg[i] == 0) q.push(i), order.push_back(i);
+		}
+		while (!q.empty()) {
+			int u = q.front();
+			q.pop();
+			for(auto i: g[u]) {
+				indeg[i] --;
+				if (indeg[i] == 0) q.push(i), order.push_back(i);
+			}
+		}
+		return order;
+	}
+};
 
 void t_main() {
 
