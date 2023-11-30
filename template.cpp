@@ -349,6 +349,67 @@ namespace GraphUtils {
 	}
 };
 
+struct SegTree {
+	int sz;
+	vector<int> tree;
+	int NETRAL = 0;
+	
+	SegTree(int n) {
+		init(n);
+	}
+	
+	void init(int n) {
+		sz = 1;
+		while (sz < n) sz *= 2;
+		tree.resize(sz * 2 - 1, NETRAL);
+	}
+	
+	void build(vector<int> & v, int x, int lx, int rx) {
+		if (lx == rx-1) {
+			if (lx < (int)v.size()) {
+				tree[x] = v[lx];
+			} else {
+				tree[x] = NETRAL;
+			}
+			return;
+		}
+		int m = (lx + rx) / 2;
+		build(v, x*2+1, lx, m);
+		build(v, x*2+2, m, rx);
+		tree[x] = tree[x*2+1] + tree[x*2+2];
+	}
+	
+	void build(vector<int > &v) {
+		init(v.size());
+		build(v, 0, 0, sz);
+	}
+	int get(int x, int lx, int rx, int l, int r) {
+		if (r <= lx || rx <= l) return NETRAL;
+		if (l <= lx && rx <= r) return tree[x];
+		
+		int m = (lx + rx) / 2;
+		int L = get(x * 2 + 1, lx, m, l, r);
+		int R = get(x * 2 + 2, m, rx, l, r);
+		return L + R;
+	}
+	int get(int l, int r) {
+		return get(0, 0, sz, l, r);
+	}
+	void update(int x, int lx, int rx, int i, int v) {
+		if (rx == lx + 1) {
+			tree[x] = v;
+			return;
+		}
+		int m = (lx + rx) / 2;
+		if (i < m) update(x * 2 + 1, lx, m, i, v);
+		else update(x * 2 + 2, m, rx, i, v);
+		tree[x] = tree[x * 2 + 1] + tree[x * 2 + 2];
+	}
+	void update(int i, int v) {
+		update(0, 0, sz, i, v);
+	}
+};
+
 void t_main() {
 
 }
