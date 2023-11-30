@@ -25,6 +25,131 @@
 using namespace std;
  
 
+struct D2SegTree {
+	/// for sum
+	int sz;
+	int NETRAL = 0;
+	
+	struct SubTree {
+		int sz;
+		vector<int> tree;
+		int NETRAL = 0;
+		
+		SubTree(int n) {
+			init(n);
+		}
+		
+		void init(int n) {
+			sz = 1;
+			while (sz < n) sz *= 2;
+			tree.resize(sz * 2 - 1, NETRAL);
+		}
+		
+		void build(vector<int> & v, int x, int lx, int rx) {
+			if (lx == rx-1) {
+				if (lx < (int)v.size()) {
+					tree[x] = v[lx];
+				} else {
+					tree[x] = NETRAL;
+				}
+				return;
+			}
+			int m = (lx + rx) / 2;
+			build(v, x*2+1, lx, m);
+			build(v, x*2+2, m, rx);
+			tree[x] = tree[x*2+1] + tree[x*2+2];
+		}
+		
+		void build(vector<int > &v) {
+			init(v.size());
+			build(v, 0, 0, sz);
+		}
+		int get(int x, int lx, int rx, int l, int r) {
+			if (r <= lx || rx <= l) return NETRAL;
+			if (l <= lx && rx <= r) return tree[x];
+			
+			int m = (lx + rx) / 2;
+			int L = get(x * 2 + 1, lx, m, l, r);
+			int R = get(x * 2 + 2, m, rx, l, r);
+			return L + R;
+		}
+		int get(int l, int r) {
+			return get(0, 0, sz, l, r);
+		}
+		void update(int x, int lx, int rx, int i, int v) {
+			if (rx == lx + 1) {
+				tree[x] = v;
+				return;
+			}
+			int m = (lx + rx) / 2;
+			if (i < m) update(x * 2 + 1, lx, m, i, v);
+			else update(x * 2 + 2, m, rx, i, v);
+			tree[x] = tree[x * 2 + 1] + tree[x * 2 + 2];
+		}
+		void update(int i, int v) {
+			update(0, 0, sz, i, v);
+		}
+	};
+
+	vector<SubTree> tree;
+	void init(int n, int m) {
+		sz = 1;
+		while (sz < n) sz *= 2;
+		
+		tree.resize(sz * 2 - 1, SubTree(m));
+	}
+	
+	void build(vector<vector<int> > & v, int x, int lx, int rx) {
+		if (lx == rx-1) {
+			if (lx < (int)v.size()) {
+				tree[x].build(v[lx]);
+			}
+			return;
+		}
+		int m = (lx + rx) / 2;
+		build(v, x*2+1, lx, m);
+		build(v, x*2+2, m, rx);
+		vector<int> temp(v[0].size());
+		for(int i=0; i<(int)v[0].size(); i++) {
+			temp[i] = tree[x*2+1].get(i, i+1) + tree[x*2+2].get(i, i+1);
+		}
+		tree[x].build(temp);
+	}
+	
+	void build(vector<vector<int> > &v) {
+		init(v.size(), v[0].size());
+		build(v, 0, 0, sz);
+	}
+	int get(int x, int lx, int rx, int l, int r, int t, int b) {
+		if (r <= lx || rx <= l) return NETRAL;
+		if (l <= lx && rx <= r) return tree[x].get(t, b);
+		
+		int m = (lx + rx) / 2;
+		int L = get(x * 2 + 1, lx, m, l, r, t, b);
+		int R = get(x * 2 + 2, m, rx, l, r, t, b);
+		return L + R;
+	}
+	int get(int l, int r, int t, int b) {
+		return get(0, 0, sz, l, r, t, b);
+	}
+	
+	void update(int x, int lx, int rx, int i, int j, int v) {
+		if (rx == lx + 1) {
+			tree[x].update(j, v);
+			return;
+		}
+		int m = (lx + rx) / 2;
+		if (i < m) update(x * 2 + 1, lx, m, i, j, v);
+		else update(x * 2 + 2, m, rx, i, j, v);
+		tree[x].update(j, tree[x*2+1].get(j, j+1) + tree[x*2+2].get(j, j+1));
+	}
+	
+	void update(int i, int j, int v) {
+		update(0, 0, sz, i, j, v);
+	}
+};
+
+
 struct KosarajuAlgorithm {
 	// Kosaraju's Algorithm for finding Strongly Connected Components
     vector<vector<int> > G, GR;
