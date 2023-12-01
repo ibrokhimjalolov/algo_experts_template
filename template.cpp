@@ -33,6 +33,7 @@ using namespace std;
 #define X first
 #define Y second
 #define fast ios_base::sync_with_stdio(false),cin.tie(0),cout.tie(0)
+#define ln cout<<"\n"
 
 struct D2SegTree {
 	/// for sum
@@ -365,6 +366,21 @@ namespace GraphUtils {
 		}
 		return order;
 	}
+
+	// pair<int, int> dfs(int v, int u = -1) {
+	// 	// dfs for find max depth and the node from which the max depth is achieved && diameter of the tree  mx.first = dfs(1) && mx.second = dfs(mx.first)
+	// 	if (g[v].size() == 0) return {0, v}; 
+	// 	if (g[v].size() == 1 && u != -1) return {0, v};
+	// 	pair<int, int> mx = {-1, -1};
+	// 	for(int x: g[v]) {
+	// 		if (x == u) continue;
+	// 		pair<int, int> m = dfs(x, v);
+	// 		if (mx < m) {
+	// 			mx = m;
+	// 		}
+	// 	}
+	// 	return {mx.first + 1, mx.second};
+	// }
 };
 
 struct SegTree {
