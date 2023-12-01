@@ -26,6 +26,9 @@ using namespace std;
  
 
 #define int long long int
+#define ll long long
+#define vi vector<int>
+#define vll vector<long long>
 #define all(x) (x).begin(), (x).end()
 #define rall(x) (x).rbegin(), (x).rend()
 #define sz(x) (int)(x).size()
@@ -365,6 +368,25 @@ namespace GraphUtils {
 			}
 		}
 		return order;
+	}
+
+	vector<ll> disktra(vector<vector<int> > &v, int sz, int source) {
+		vector<ll> dist(sz+1, (ll)1e18);
+		dist[source] = 0;
+		priority_queue<pair<ll, ll>, vector<pair<ll, ll> >, greater<pair<ll, ll> > > pq;
+		pq.push({0, source});
+		while (!pq.empty()) {
+			auto [d, u] = pq.top();
+			pq.pop();
+			if (dist[u] != d) continue;
+			for(auto v: v[u]) {
+				if (dist[v] > dist[u] + 1) {
+					dist[v] = dist[u] + 1;
+					pq.push({dist[v], v});
+				}
+			}
+		}
+		return dist;
 	}
 
 	// pair<int, int> dfs(int v, int u = -1) {
