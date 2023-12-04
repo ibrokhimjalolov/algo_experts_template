@@ -24,7 +24,6 @@
 #include <climits>
 using namespace std;
  
-
 #define int long long int
 #define ll long long
 #define vi vector<int>
@@ -37,6 +36,9 @@ using namespace std;
 #define Y second
 #define fast ios_base::sync_with_stdio(false),cin.tie(0),cout.tie(0)
 #define ln cout<<"\n"
+#define pii pair<int,int>
+#define deb(x) cout<<#x<<" = "<<x<<'\n'
+
 
 struct D2SegTree {
 	/// for sum
@@ -441,7 +443,9 @@ struct SegTree {
 		while (sz < n) sz *= 2;
 		tree.resize(sz * 2 - 1, NETRAL);
 	}
-	
+	int combine(int x, int y) {
+		return x + y;
+	}
 	void build(vector<int> & v, int x, int lx, int rx) {
 		if (lx == rx-1) {
 			if (lx < (int)v.size()) {
@@ -454,7 +458,7 @@ struct SegTree {
 		int m = (lx + rx) / 2;
 		build(v, x*2+1, lx, m);
 		build(v, x*2+2, m, rx);
-		tree[x] = tree[x*2+1] + tree[x*2+2];
+		tree[x] = combine(tree[x*2+1], tree[x*2+2]);
 	}
 	
 	void build(vector<int > &v) {
@@ -468,7 +472,7 @@ struct SegTree {
 		int m = (lx + rx) / 2;
 		int L = get(x * 2 + 1, lx, m, l, r);
 		int R = get(x * 2 + 2, m, rx, l, r);
-		return L + R;
+		return combine(L, R);
 	}
 	int get(int l, int r) {
 		return get(0, 0, sz, l, r);
@@ -481,12 +485,14 @@ struct SegTree {
 		int m = (lx + rx) / 2;
 		if (i < m) update(x * 2 + 1, lx, m, i, v);
 		else update(x * 2 + 2, m, rx, i, v);
-		tree[x] = tree[x * 2 + 1] + tree[x * 2 + 2];
+		tree[x] = combine(tree[x * 2 + 1], tree[x * 2 + 2]);
 	}
 	void update(int i, int v) {
 		update(0, 0, sz, i, v);
 	}
 };
+
+const int N = 1e5 + 5, MOD = 1e9 + 7;
 
 void t_main() {
 
