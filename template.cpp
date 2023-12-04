@@ -405,6 +405,28 @@ namespace GraphUtils {
 	// }
 };
 
+struct DSU {
+	int sz;
+	vector<int> p;
+	DSU (int n=0) {init(n);}
+	void init(int n) {
+		sz = n;
+		p.resize(n+1);
+		for(int i=0; i<=n; i++) p[i] = i;
+	}
+	int get(int x) {
+		if (p[x] == x) return x;
+		return p[x] = get(p[x]);
+	}
+	bool unite(int x, int y) {
+		x = get(x);
+		y = get(y);
+		if (x == y) return false;
+		p[x] = y;
+		return true;
+	}
+};
+
 struct SegTree {
 	int sz;
 	vector<int> tree;
