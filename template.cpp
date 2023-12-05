@@ -429,12 +429,13 @@ struct DSU {
 	}
 };
 
+template <typename ComFunc>
 struct SegmentTree {
 	int sz;
 	vector<int> tree;
 	function<int(int, int)> combinator;
 	int NETRAL = 0;
-	
+	SegmentTree(){};
 	SegmentTree(function<int(int, int)> c, int netral=0) {
 		combinator = c;
 		NETRAL = netral;
