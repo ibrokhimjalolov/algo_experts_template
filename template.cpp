@@ -429,13 +429,15 @@ struct DSU {
 	}
 };
 
-struct SegTree {
+struct SegmentTree {
 	int sz;
 	vector<int> tree;
+	function<int(int, int)> combinator;
 	int NETRAL = 0;
 	
-	SegTree(int n) {
-		init(n);
+	SegmentTree(function<int(int, int)> c, int netral=0) {
+		combinator = c;
+		NETRAL = netral;
 	}
 	
 	void init(int n) {
@@ -443,40 +445,32 @@ struct SegTree {
 		while (sz < n) sz *= 2;
 		tree.resize(sz * 2 - 1, NETRAL);
 	}
-	int combine(int x, int y) {
-		return x + y;
-	}
+	
 	void build(vector<int> & v, int x, int lx, int rx) {
 		if (lx == rx-1) {
-			if (lx < (int)v.size()) {
-				tree[x] = v[lx];
-			} else {
-				tree[x] = NETRAL;
-			}
+			if (lx < (int)v.size()) tree[x] = v[lx];
+			else                    tree[x] = NETRAL;
 			return;
 		}
 		int m = (lx + rx) / 2;
 		build(v, x*2+1, lx, m);
 		build(v, x*2+2, m, rx);
-		tree[x] = combine(tree[x*2+1], tree[x*2+2]);
+		tree[x] = combinator(tree[2*x+1], tree[x*2+2]);
 	}
 	
-	void build(vector<int > &v) {
+	void build(vector<int> &v) {
 		init(v.size());
 		build(v, 0, 0, sz);
 	}
 	int get(int x, int lx, int rx, int l, int r) {
 		if (r <= lx || rx <= l) return NETRAL;
 		if (l <= lx && rx <= r) return tree[x];
-		
 		int m = (lx + rx) / 2;
 		int L = get(x * 2 + 1, lx, m, l, r);
 		int R = get(x * 2 + 2, m, rx, l, r);
-		return combine(L, R);
+		return combinator(L, R);
 	}
-	int get(int l, int r) {
-		return get(0, 0, sz, l, r);
-	}
+	int get(int l, int r) {return get(0, 0, sz, l, r);}
 	void update(int x, int lx, int rx, int i, int v) {
 		if (rx == lx + 1) {
 			tree[x] = v;
@@ -485,10 +479,62 @@ struct SegTree {
 		int m = (lx + rx) / 2;
 		if (i < m) update(x * 2 + 1, lx, m, i, v);
 		else update(x * 2 + 2, m, rx, i, v);
-		tree[x] = combine(tree[x * 2 + 1], tree[x * 2 + 2]);
+		tree[x] = combinator(tree[2*x+1], tree[x*2+2]);
 	}
-	void update(int i, int v) {
-		update(0, 0, sz, i, v);
+	void update(int i, int v) {update(0, 0, sz, i, v);}
+	int index_min(int x, int lx, int rx, int l, int r, int v) {
+		if (r <= lx || rx <= l) return -1;
+		if (l <= lx && rx <= r && tree[x] > v) return -1;
+		if (lx == rx - 1) return lx;
+		int m = (lx + rx) / 2;
+		int L = index_min(x*2+1, lx, m, l, r, v);
+		if (L != -1) return L;
+		return index_min(x*2+2, m, rx, l, r, v);
+	}
+	int index_min(int l, int r) {
+		/// min index in range
+		int mn = get(l, r);
+		return index_min(0, 0, sz, l, r, mn);
+	}
+};
+
+SegmentTree min_tree([](int x, int y) {return min(x, y);}, (int)(1e9+1));
+SegmentTree max_tree([](int x, int y) {return max(x, y);}, (int)(-1e9-1));
+SegmentTree sum_tree([](long long x, long long y) {return x + y;}, 0);
+
+struct LCA {
+	/// Lowest Common Ancestor
+	vector<int> level, v, ind;
+	SegmentTree tree{[](int x, int y) {return min(x, y);}, (int)1e9};
+	int timer = 0;
+	int sz;
+	vector<vector<int> > G;
+	LCA(){};
+	LCA(vector<vector<int> > &g, int root=1) {build(g, root);}
+	void build(vector<vector<int> > &g, int root=1){
+		sz = g.size();
+		G = g;
+		level.resize(sz);
+		ind.resize(sz);
+		dfs(root);
+		G.clear();
+		vector<int> vals;
+		for(int i=0; i<v.size(); i++) vals.push_back(level[v[i]]);
+		tree.build(vals);
+		vals.clear();
+	}
+	void dfs(int u, int p=-1, int d=0) {
+		ind[u] = v.size();
+		v.push_back(u);
+		level[u] = d;
+		for(int x: G[u]) if (x != p) dfs(x, u, d+1), v.push_back(u);
+		
+	}
+	int answer(int u, int w) {
+		int l = ind[u];
+		int r = ind[w];
+		if (r < l) swap(l, r);
+		return v[tree.index_min(l, r+1)];
 	}
 };
 
