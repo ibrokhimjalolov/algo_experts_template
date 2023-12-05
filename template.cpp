@@ -429,7 +429,6 @@ struct DSU {
 	}
 };
 
-template <typename ComFunc>
 struct SegmentTree {
 	int sz;
 	vector<int> tree;
