@@ -539,7 +539,7 @@ struct LCA {
 };
 
 struct HLD {
-	/// HLD for max in (u, v) path
+	/// HLD for max in (u, v) path for tree only
 	vector<SegmentTree> trees;
 	vector<vector<int> > clans;
 	int sz;
