@@ -498,9 +498,9 @@ struct SegmentTree {
 	}
 };
 
-SegmentTree min_tree([](int x, int y) {return min(x, y);}, (int)(1e9+1));
-SegmentTree max_tree([](int x, int y) {return max(x, y);}, (int)(-1e9-1));
-SegmentTree sum_tree([](long long x, long long y) {return x + y;}, 0);
+// SegmentTree min_tree([](int x, int y) {return min(x, y);}, (int)(1e9+1));
+// SegmentTree max_tree([](int x, int y) {return max(x, y);}, (int)(-1e9-1));
+// SegmentTree sum_tree([](long long x, long long y) {return x + y;}, 0);
 
 struct LCA {
 	/// Lowest Common Ancestor
@@ -535,6 +535,104 @@ struct LCA {
 		int r = ind[w];
 		if (r < l) swap(l, r);
 		return v[tree.index_min(l, r+1)];
+	}
+};
+
+struct HLD {
+	/// HLD for max in (u, v) path
+	vector<SegmentTree> trees;
+	vector<vector<int> > clans;
+	int sz;
+	LCA lca;
+	vector<int> top, level, subtrees, parent;
+	
+	void build(int n, vector<vector<int> > &g, vector<int> &vals) {
+		sz = n;
+		LCA lca1(g, 1);
+		lca = lca1;
+		top.assign(sz+1, 0);
+		level.assign(sz+1, 0);
+		subtrees.assign(sz+1, 0);
+		parent.assign(sz+1, 0);
+		trees.resize(sz+1);
+		clans.resize(sz+1);
+		
+		dfs(g, 1);
+		feat_clans(g, 1);
+		vector<bool> f(n+1);
+		for(int i=1; i<=n; i++) {
+			int t = top[i];
+			if (!f[t]) {
+				trees[t].NETRAL = -1e9-1;
+				trees[t].combinator = [](int x, int y){return max(x, y);};
+				vector<int> vv(clans[t].size());
+				for(int j=0; j<clans[t].size(); j++) {
+					vv[j] = vals[clans[t][j]];
+				}
+				trees[t].build(vv);
+				f[t] = true;			
+			}
+		}
+		
+		clans.clear();
+		subtrees.clear();
+	}
+	
+	
+	void dfs(vector<vector<int> > &g, int u, int p=-1, int d=0) {
+		parent[u] = p;
+		level[u] = d;
+		top[u] = u;
+		subtrees[u] = 1;
+		int mx = -1;
+		for(int x: g[u]) {
+			if (x != p) {
+				dfs(g, x, u, d+1);
+				if (mx == -1) mx = x;
+				if (subtrees[mx] < subtrees[x]) {
+					mx = x;
+				}
+				subtrees[u] += subtrees[x];
+			}
+		}
+		if (mx != -1)
+			top[mx] = u;
+		else top[u] = u;
+	}
+	void feat_clans(vector<vector<int> > &g, int u, int p=-1) {
+		clans[top[u]].push_back(u);
+		for(int x: g[u]) {
+			if (p != x) {
+				if (top[x] == u) {
+					top[x] = top[u];
+				}
+				feat_clans(g, x, u);
+			}
+		}
+	}
+	
+	int get_upto_lca(int x, int y) {
+		int res = -1e9-1;
+		while (true) {
+			int t = top[x];
+			if (level[t] > level[top[y]]) {
+				res = max(res, trees[t].get(0, level[x] - level[t] + 1));
+				x = parent[t];
+			} else {
+				res = max(res, trees[t].get(level[y]-level[t], level[x] - level[t] + 1));
+				return res;
+			}
+		}
+		return 0LL;
+	};
+	
+	int answer(int x, int y) {
+		int l = lca.answer(x, y);
+		return max(get_upto_lca(x, l), get_upto_lca(y, l));
+	}
+	
+	void update(int s, int x) {
+		trees[top[s]].update(level[s]-level[top[s]], x);
 	}
 };
 
