@@ -415,6 +415,68 @@ namespace GraphUtils {
 	// }
 };
 
+namespace Treap {
+	/// cat and merge arrays fast log(n) for operation any length
+	// Treap::node *A, *B, *C, *D;
+    // Treap::split(treap, A, B, x - 1); 
+    // Treap::split(B, D, C, y - x + 1);
+    // Treap::merge(treap, A, C);  treap = A + C
+    // Treap::merge(treap, treap, D);  treap = treap + D
+	struct node {
+	    node *left, *right;
+	    int weight, size;
+	    int value;
+	    node(int v) {
+	        left = right = NULL;
+	        weight = rand();
+	        size = 1;
+	        value = v;
+	    }
+	};
+	int size(node *treap) {
+	    if (treap == NULL) return 0;
+	    return treap->size;
+	}
+	void split(node *treap, node *&left, node *&right, int k) {
+	    if (treap == NULL) {
+	        left = right = NULL;
+	    } 
+	    else {
+	        if (size(treap->left) < k) {
+	            split(treap->right, treap->right, right, k - size(treap->left)-1);
+	            left = treap;
+	        } 
+	        else {
+	            split(treap->left, left, treap->left, k);
+	            right = treap;
+	        }
+	        treap->size = size(treap->left) + size(treap->right) + 1;
+	    }
+	}
+	
+	void merge(node *&treap, node *left, node *right) {
+	    if (left == NULL) treap = right;
+	    else if(right == NULL) treap = left;
+	    else {
+	        if (left->weight < right->weight) {
+	            merge(left->right, left->right, right);
+	            treap = left;
+	        } 
+	        else {
+	            merge(right->left, left, right->left);
+	            treap = right;
+	        }   
+	        treap->size = size(treap->left) + size(treap->right) + 1;
+	    }
+	}
+	void print(node *treap) {
+	    if (treap == NULL) return;
+	    print(treap->left);
+	    cout << char(treap->value);
+	    print(treap->right);
+	}
+};
+
 struct DSU {
 	int sz;
 	vector<int> p;
