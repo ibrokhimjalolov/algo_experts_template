@@ -217,6 +217,14 @@ struct KosarajuAlgorithm {
 			}
 		}
 	}
+
+	vector<vector<int> > get_clans() {
+		vector<vector<int> > clans(clan+1);
+		for(int i=1; i<=n; i++) {
+			clans[res[i]].push_back(i);
+		}
+		return clans;
+	}
 };
 
 
