@@ -712,6 +712,18 @@ struct HLD {
 	}
 };
 
+// Geometry
+struct P {
+	int x, y;
+	void read() {cin >> x >> y;}
+	P operator - (const P& p) const {return P{x - p.x, y - p.y};}
+	P operator + (const P& p) const {return P{x + p.x, y + p.y};}
+	void operator -= (const P& p) {x -= p.x; y -= p.y;}
+	void operator += (const P& p) {x += p.x; y += p.y;}
+	long long operator * (const P& p) const {return (long long) x * p.y - (long long) y * p.x;}
+	long long treangle(const P& b, const P& c) const {return (b - *this) * (c - *this);}
+};
+
 const int N = 1e5 + 5, MOD = 1e9 + 7;
 
 void t_main() {
