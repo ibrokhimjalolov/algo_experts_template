@@ -261,6 +261,7 @@ namespace MathUtil {
 		}
 		return prime;
 	}
+	
 	long long BinPow(long long a, long long b, long long mod) {
 		long long res = 1;
 		while (b) {
@@ -269,6 +270,11 @@ namespace MathUtil {
 			b >>= 1;
 		}
 		return res;
+	}
+
+	// abs and devide it by 2
+	long long area(pair<int, int> a, pair<int, int> b, pair<int, int> c) {
+		return (b.second - a.second) * (c.first - b.first) - (b.first - a.first) * (c.second - b.second);
 	}
 };
 
