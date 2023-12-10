@@ -712,6 +712,18 @@ struct HLD {
 	}
 };
 
+
+vector<int> z_function(string &s) {
+	int n = s.size();
+	vector<int> z(n);
+	for(int i=1, l=0, r=0; i<n; i++) {
+		if (i <= r) z[i] = min(z[i-l], r-i+1);
+		while (i + z[i] < n && s[z[i]] == s[i+z[i]]) z[i] ++;
+		if (i + z[i] - 1 > r) l = i, r = i + z[i] - 1;
+	}
+	return z;
+}
+
 // Geometry
 struct P {
 	int x, y;
@@ -727,14 +739,13 @@ struct P {
 const int N = 1e5 + 5, MOD = 1e9 + 7;
 
 void t_main() {
-
 }
 
 signed main()
 {
 	fast;
 	int t = 1;
-	cin >> t;
+	// cin >> t;
 	while (t--) {
 		t_main();	
 	}
