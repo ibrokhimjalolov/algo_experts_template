@@ -736,6 +736,178 @@ struct P {
 	long long treangle(const P& b, const P& c) const {return (b - *this) * (c - *this);}
 };
 
+
+ll BinPow(ll a, ll b, ll m) {
+	ll ans = 1;
+
+	while(b) {
+		if (b & 1)
+			ans = (ans * a) % m;
+		a = a * a % m;
+		b >>= 1;
+	}
+	return ans;
+}
+
+bool IsPrime(ll n) {
+	if (n == 1) return false;
+	ll x;
+
+	for(int i = 0; i < 100; i ++) {
+		x = rand() + 10;
+		if (x % n == 0) x ++;
+		if (BinPow(x, n-1, n) != 1) return false;
+	}
+	return true;
+}
+
+ll Phi(ll n) {
+	if (IsPrime(n)) return n - 1;
+	ll result = n;
+	for (int i = 2; i * i <= n; i ++)
+		if (n % i == 0) {
+			while (n % i == 0)
+			  n /= i;
+			result -= result / i;
+		}
+	if (n > 1)
+		result -= result / n;
+	return result;
+}
+
+ll InverseMod(ll a, ll b, ll m, ll phi = -1) {
+	if(phi == -1) phi = Phi(m);
+	
+	return a * BinPow(b, phi - 1, m) % m;
+}
+ 
+namespace factorization {
+	ll modmul(ll x, ll y, ll p) {
+		ll q = (__int128) x * y / p;
+		ll result = (ll) ((ll)(x) * y - q * p) % p;
+		
+		return result < 0 ? result + p : result;
+	}
+	
+  ll bgcd(ll x, ll y) {
+    if (!x || !y) return x + y;
+    int shift = __builtin_ctzll(x | y);
+    x >>= __builtin_ctzll(x);
+    do {
+      y >>= __builtin_ctzll(y);
+      if (x > y) swap(x, y);
+      y -= x;
+    } while (y);
+    return x << shift;
+  }
+ 
+  ll pw(ll a, ll n, ll p) {
+    ll res = 1;
+    while (n) {
+      if (n & 1) res = modmul(res, a, p);
+      a = modmul(a, a, p);
+      n >>= 1;
+    }
+    return res;
+  }
+ 
+  bool check_composite(ll n, int s, ll d, ll a) {
+    ll x = pw(a, d, n);
+    if (x == 1 || x == n - 1) return false;
+    for (int it = 1; it < s; ++it) {
+      x = modmul(x, x, n);
+      if (x == n - 1) return false;
+    }
+    return true;
+  }
+ 
+  bool is_prime(ll n) {
+    if (n < 4) return n > 1;
+    int s = 0;
+    ll d = n - 1;
+    while (!(d & 1)) {
+      d >>= 1;
+      ++s;
+    }
+    static vector<ll> primes32{2, 7, 61};
+    static vector<ll> primes64{2, 325, 9375, 28178, 450775, 9780504,
+                                1795265022};
+    static ll const BOUND = (ll)(4759123141ll);
+    for (ll a : (n <= BOUND ? primes32 : primes64)) {
+      if (n == a) return true;
+      if (check_composite(n, s, d, a)) return false;
+    }
+    return true;
+  }
+ 
+  ll find_divisor(ll n, int c = 2) {
+    auto f = [&](ll x) {
+      auto r = modmul(x, x, n) + c;
+      if (r >= n) r -= n;
+      return r;
+    };
+    ll x = c;
+    ll g = 1;
+    ll q = 1;
+    ll xs, y;
+ 
+    int m = 128;
+    int l = 1;
+    while (g == 1) {
+      y = x;
+      for (int i = 1; i < l; ++i) {
+        x = f(x);
+      }
+      int k = 0;
+      while (k < l && g == 1) {
+        xs = x;
+        for (int i = 0; i < m && i < l - k; ++i) {
+          x = f(x);
+          q = modmul(q, llabs(y - x), n);
+        }
+        g = bgcd(q, n);
+        k += m;
+      }
+      l *= 2;
+    }
+    if (g == n) {
+      do {
+        xs = f(xs);
+        g = bgcd(llabs(xs - y), n);
+      } while (g == 1);
+    }
+    return g == n ? find_divisor(n, c + 1) : g;
+  }
+ 
+  vector<pair<ll, int>> factorize(ll m) {
+    if (m == 1) {
+      return {};
+    }
+    vector<ll> fac;
+    auto rec = [&fac](auto&& rec, ll m) -> void {
+      if (is_prime(m)) {
+        fac.push_back(m);
+        return;
+      }
+      auto d = m % 2 == 0 ? 2 : find_divisor(m);
+      rec(rec, d);
+      rec(rec, m / d);
+    };
+    rec(rec, m);
+    sort(fac.begin(), fac.end());
+    vector<pair<ll, int>> ans;
+    for (auto x : fac) {
+      if (ans.empty() || ans.back().first != x) {
+        ans.emplace_back(x, 0);
+      }
+      ++ans.back().second;
+    }
+    return ans;
+  }
+}
+using factorization::factorize;
+using factorization::is_prime;
+
 const int N = 1e5 + 5, MOD = 1e9 + 7;
 
 void t_main() {
